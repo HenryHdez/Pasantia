@@ -1,0 +1,1 @@
+docker run -it --rm --name ros_listener_container -e ROS_MASTER_URI=http://192.168.176.92:11311 -e ROS_IP=192.168.176.92 ros_listener

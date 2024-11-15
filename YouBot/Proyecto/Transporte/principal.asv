@@ -1,0 +1,77 @@
+%%%Control de los robots usando hilos
+%Parar todos los hilos
+%delete(gcp('nocreate'));
+
+function principal()
+    % Crear un objeto 'StopFlag' dentro de un 'parallel.pool.Constant'
+    stopFlag = parallel.pool.Constant(@() StopFlag);
+    ip1 = '192.168.1.101'; % Robotino 1
+    
+    % Configurar el pool de workers
+    if isempty(gcp('nocreate'))
+        parpool('local', 4);
+    end
+
+    % Ejecutar dos tareas en paralelo para el control de los robots
+    %R1 = parfeval(@KuKactuadors, 1);  % Control del robot KuKa
+    R2 = parfeval(@Robotino2Mover, 1, stopFlag, 0.2);  % Control del robot Robotino
+    R3 = parfeval(@Robotino2Mover, 1, stopFlag, 0.3);  % Control del robot Robotino
+    
+    pause(10)
+
+    % Esperar los resultados de los hilos
+    %result1 = fetchOutputs(R1);
+    cancel(R3);
+    cancel(R3);
+
+    %result3 = fetchOutputs(R3);
+
+end
+
+% Función para controlar al robot KuKa
+function out = KuKactuadors()
+    global PararRueRob2;
+    ip = '192.168.1.102';
+    rosshutdown;
+    rosinit(ip);
+    
+    gripperPub = rospublisher('/arm_1/gripper_controller/position_command', ...
+        'brics_actuator/JointPositions');
+    
+    abrirGripper(gripperPub);
+    % Mover al punto de tomar muestra
+    moverBrazo([2.8, 0.3, -3, 0.42, 0], 15, ip);
+    cerrarGripper(gripperPub);
+    moverBrazo([0.5, 0.5, -0.5, 0.5, 0], 15, ip);
+    
+    rosshutdown;
+    out = 1;
+    disp(dim(PararRueRob2))
+end
+
+function out = Robotino2Mover(stopFlag, i)
+    i=i-0.1;
+    ip = '192.168.1.107';
+    while 1
+        % Simular el envío de datos
+        enviarDatosRob2('192.168.1.107');
+        pause(i);  % Pausa de 2 segundos entre cada envío
+    end
+    out = 1;
+
+end
+
+% Función que simula el envío de datos
+function enviarDatosRob2(ip)
+    url = strcat('http://', ip, '/data/omnidrive');
+    VelRob1 = [0.25, 0.0, 0.0];
+    vx = VelRob1(1);
+    vy = VelRob1(2);
+    om = VelRob1(3);
+    try
+        webwrite(url, [vx, vy, om]);
+        disp(['Datos enviados desde temporizador ', ' con Vx=', num2str(vx), ' Vy=', num2str(vy), ' Omega=', num2str(om)]);
+    catch ME
+        disp(['Error al enviar datos desde temporizador : ', ME.message]);
+    end
+end
