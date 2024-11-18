@@ -1,6 +1,6 @@
 function robotinoControlApp()
     %IP por defecto
-    ip = 'http://192.168.1.100';
+    ip = 'http://192.168.1.101';
 
     % Base para la interfaz de usuario
     fig = uifigure('Position', [50, 50, 300, 600], 'Name', 'Control remoto Robotino v4');
@@ -12,7 +12,7 @@ function robotinoControlApp()
 
     % Menú desplegable
     selectDropdown = uidropdown(fig, ...
-        'Items', {'Robotino 1', 'Robotino 2', 'Kuka'}, ...
+        'Items', {'Robotino 1', 'Robotino 2'}, ...
         'Position', [10, 530, 280, 22], ...
         'Value', 'Robotino 1', ...
         'FontSize', 12, 'FontWeight', 'bold');
@@ -127,12 +127,9 @@ function robotinoControlApp()
         selectedOption = dd.Value;
         switch selectedOption
             case 'Robotino 1'
-                ip = 'http://192.168.1.100';
+                ip = 'http://192.168.1.101';
             case 'Robotino 2'
-                ip = 'http://192.168.1.102';
-            case 'Kuka'
-                ip = 'http://192.168.1.103';
+                ip = 'http://192.168.1.107';
         end
-        %disp(['IP seleccionada: ', ip]);
     end
 end
